@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: anikiosk-api
+    runtime: python
+    plan: free
+    rootDir: anime_database
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app --limit-request-line 4094 --limit-request-fields 32 --limit-request-field_size 8190 --timeout 30 --workers 2"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: "https://anikiosk.netlify.app"
+    # NOTE: Render's free web services have no persistent disk — app.db
+    # (user accounts) will be wiped on every redeploy or restart. anime.db
+    # is unaffected since it's committed to the repo and read-only. For
+    # accounts that survive redeploys, add a paid plan's persistent disk
+    # mounted at APP_DB_PATH, or move app.db's data to a hosted database.
+    #
+    # NOTE on the firewall: Render already puts every web service behind
+    # Cloudflare for free, automatic network/DDoS-level protection — no
+    # config needed. It doesn't yet offer a configurable WAF on top of that
+    # (as of writing, Render's own docs point people to run their own
+    # Cloudflare account in front for that level of control — free tier
+    # works fine: add a DNS-only-turned-proxied CNAME to this Render URL).
+    # The app-level firewall in app.py is a second, complementary layer
+    # sitting right in front of the routes, not a replacement for a real
+    # edge WAF if this ever needs to withstand a serious attack.
