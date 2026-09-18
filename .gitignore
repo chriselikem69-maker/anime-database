@@ -1,0 +1,10 @@
+# Holds password hashes and session tokens — never commit this.
+app.db
+app.db-journal
+app.db-wal
+app.db-shm
+
+# Local env / caches
+.env
+__pycache__/
+*.pyc
